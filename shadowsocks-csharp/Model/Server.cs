@@ -23,6 +23,7 @@ namespace Shadowsocks.Model
         public string method;
         public string remarks;
         public int timeout;
+        public int garbage_length;
 
         public override int GetHashCode()
         {
@@ -68,6 +69,7 @@ namespace Shadowsocks.Model
             password = "";
             remarks = "";
             timeout = DefaultServerTimeoutSec;
+            garbage_length = 0;
         }
 
         public static List<Server> GetServers(string ssURL)

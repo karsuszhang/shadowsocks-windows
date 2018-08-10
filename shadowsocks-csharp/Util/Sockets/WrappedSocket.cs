@@ -18,6 +18,8 @@ namespace Shadowsocks.Util.Sockets
     {
         public EndPoint LocalEndPoint => _activeSocket?.LocalEndPoint;
 
+        public EndPoint RemoteEndPoint => _activeSocket?.RemoteEndPoint;
+
         // Only used during connection and close, so it won't cost too much.
         private SpinLock _socketSyncLock = new SpinLock();
 

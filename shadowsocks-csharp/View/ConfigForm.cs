@@ -101,6 +101,11 @@ namespace Shadowsocks.View
                     TimeoutTextBox.Focus();
                     return false;
                 }
+                if(!int.TryParse(GarbageLengthTextbox.Text, out server.garbage_length))
+                {
+                    server.garbage_length = 0;
+                }
+
                 int localPort = int.Parse(ProxyPortTextBox.Text);
                 Configuration.CheckServer(server);
                 Configuration.CheckLocalPort(localPort);
@@ -129,6 +134,7 @@ namespace Shadowsocks.View
                 EncryptionSelect.Text = server.method ?? "aes-256-cfb";
                 RemarksTextBox.Text = server.remarks;
                 TimeoutTextBox.Text = server.timeout.ToString();
+                GarbageLengthTextbox.Text = server.garbage_length.ToString();
             }
         }
 

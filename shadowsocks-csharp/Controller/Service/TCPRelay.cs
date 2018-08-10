@@ -194,6 +194,7 @@ namespace Shadowsocks.Controller
 
         public TCPHandler(ShadowsocksController controller, Configuration config, TCPRelay tcprelay, Socket socket)
         {
+            Logging.Debug(string.Format("Gen TCPHandler by local {0}", socket.LocalEndPoint.ToString()));
             _controller = controller;
             _config = config;
             _tcprelay = tcprelay;
@@ -681,7 +682,7 @@ namespace Shadowsocks.Controller
                 connectTimer.Server = server;
 
                 _destConnected = false;
-                // Connect to the remote endpoint.
+                // Connect to the remote endpoint.                
                 remote.BeginConnectDest(destEndPoint, ConnectCallback,
                     new AsyncSession<ServerTimer>(session, connectTimer));
             }
@@ -784,6 +785,16 @@ namespace Shadowsocks.Controller
 
                 TryReadAvailableData();
                 Logging.Debug($"_firstPacketLength = {_firstPacketLength}");
+                if(_server.garbage_length > 0)
+                {
+                    Array.Copy(_connetionRecvBuffer, 0, _connetionRecvBuffer, _server.garbage_length, _firstPacketLength);
+                    _firstPacketLength += _server.garbage_length;
+                    for(int i = 0; i < _server.garbage_length; i++)
+                    {
+                        _connetionRecvBuffer[i] = (byte)sRandomer.Next(255);
+                    }
+                }
+
                 SendToServer(_firstPacketLength, session);
             }
             catch (Exception e)
@@ -792,6 +803,20 @@ namespace Shadowsocks.Controller
                 Close();
             }
         }
+
+        static Random sRandomer
+        {
+            get
+            {
+                if(_randomer == null)
+                {
+                    _randomer = new Random(DateTime.Now.Millisecond);
+                }
+
+                return _randomer;
+            }
+        }
+        static Random _randomer = null;
 
         private void PipeRemoteReceiveCallback(IAsyncResult ar)
         {

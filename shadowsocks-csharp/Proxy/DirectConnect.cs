@@ -8,6 +8,16 @@ namespace Shadowsocks.Proxy
 {
     public class DirectConnect : IProxy
     {
+        static long IDDispatcher { get { return Interlocked.Increment(ref _IDIndex); } }
+        static long _IDIndex = 0;
+
+        public long ID { get; private set; }
+
+        public DirectConnect()
+        {
+            ID = IDDispatcher;
+        }
+
         private class FakeAsyncResult : IAsyncResult
         {
             public FakeAsyncResult(object state)
@@ -53,6 +63,7 @@ namespace Shadowsocks.Proxy
 
         public void BeginConnectDest(EndPoint destEndPoint, AsyncCallback callback, object state)
         {
+            Controller.Logging.Debug(string.Format("Connection {0} start connect to ssserver {1}", ID, destEndPoint.ToString()));
             DestEndPoint = destEndPoint;
 
             _remote.BeginConnect(destEndPoint, callback, state);
@@ -88,11 +99,13 @@ namespace Shadowsocks.Proxy
 
         public void Shutdown(SocketShutdown how)
         {
+            //Shadowsocks.Controller.Logging.Debug(string.Format("Connection ID {0} IP {1} shutdown by {2}", ID, _remote.RemoteEndPoint.ToString(), how.ToString()));
             _remote.Shutdown(how);
         }
 
         public void Close()
         {
+            //Shadowsocks.Controller.Logging.Debug(string.Format("Connection {0} IP {1} Close", ID, _remote.RemoteEndPoint.ToString()));
             _remote.Dispose();
         }
     }
